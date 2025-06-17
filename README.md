@@ -19,7 +19,7 @@ This is a beautifully styled, interactive **Tic-Tac-Toe** game built using HTML,
 
 ## 🌐 Live Demo
 
-👉 [Play the Game Live](https://sweetyprasad570.github.io/stopwatch/)  
+👉 [Play the Game Live](https://sweetyprasad570.github.io/Tic-Tac-Toe/)  
 
 
 ## 🛠️ Built With
