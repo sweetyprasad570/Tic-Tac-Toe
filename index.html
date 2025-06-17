@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe with 3D Shadow</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #1e1e2f;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Background video */
+      #background-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -2;
+        object-fit: cover;
+        filter: brightness(0.4);
+      }
+
+      /* Particle background overlay */
+      .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        pointer-events: none;
+        z-index: -1;
+        background: radial-gradient(
+          rgba(255, 255, 255, 0.05) 1px,
+          transparent 1px
+        );
+        background-size: 40px 40px;
+        animation: moveParticles 10s linear infinite;
+      }
+
+      @keyframes moveParticles {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: 40px 40px;
+        }
+      }
+
+      .game-container {
+        background: rgba(40, 40, 60, 0.9);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6),
+          0 -4px 12px rgba(255, 255, 255, 0.05),
+          inset 0 2px 5px rgba(255, 255, 255, 0.1),
+          inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 420px;
+        width: 100%;
+        color: #fff;
+        z-index: 1;
+        transition: all 0.4s ease;
+      }
+
+      .game-container:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7),
+          0 -4px 14px rgba(255, 255, 255, 0.08),
+          inset 0 3px 6px rgba(255, 255, 255, 0.1),
+          inset 0 -3px 8px rgba(0, 0, 0, 0.35);
+        transform: translateY(-3px);
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        color: #ffffff;
+      }
+
+      .scoreboard {
+        margin: 10px 0 20px;
+        display: flex;
+        justify-content: space-around;
+        font-weight: bold;
+        color: #fbc02d;
+      }
+
+      .status {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #90caf9;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 8px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      .cell {
+        background-color: #2b3a42;
+        border: 2px solid #607d8b;
+        font-size: 2.5rem;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background 0.2s;
+        height: 100px;
+        color: white;
+      }
+
+      .cell:hover {
+        background-color: #37474f;
+      }
+
+      .cell.win {
+        background-color: #66bb6a !important;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #00796b;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #004d40;
+      }
+
+      /* Celebration Styles */
+      #celebration {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      .congrats-card {
+        text-align: center;
+        background: linear-gradient(135deg, #e94057, #8a2387, #f27121);
+        border-radius: 40px;
+        padding: 100px 20px;
+        box-shadow: 0 0 60px rgba(255, 255, 255, 0.3);
+        animation: pulseGlow 2s infinite;
+      }
+
+      .congrats-text {
+        font-size: 4.5rem;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        animation: pulseText 1.5s ease infinite;
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulseGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 60px rgba(255, 255, 255, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 100px rgba(255, 255, 255, 0.6);
+        }
+      }
+
+      @keyframes pulseText {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ✨ Particle animation -->
+    <div class="particles"></div>
+
+    <div class="game-container">
+      <h1>Tic-Tac-Toe</h1>
+      <div class="scoreboard">
+        <div>Player X: <span id="scoreX">0</span></div>
+        <div>Player O: <span id="scoreO">0</span></div>
+      </div>
+      <div class="status" id="status">Player X's Turn</div>
+      <div class="board" id="board"></div>
+      <button onclick="restartGame()">Restart Game</button>
+
+      <!-- 🔊 Sounds -->
+      <audio
+        id="soundX"
+        src="https://www.soundjay.com/buttons/sounds/button-3.mp3"
+      ></audio>
+      <audio
+        id="soundO"
+        src="https://www.soundjay.com/buttons/sounds/button-4.mp3"
+      ></audio>
+      <audio
+        id="winX"
+        src="https://www.soundjay.com/human/sounds/applause-8.mp3"
+      ></audio>
+      <audio
+        id="winO"
+        src="https://www.soundjay.com/human/sounds/applause-8.mp3"
+      ></audio>
+      <audio
+        id="drawSound"
+        src="https://www.fesliyanstudios.com/play-mp3/387"
+      ></audio>
+      <audio id="resetSound" src="audio/reset button.mp3"></audio>
+    </div>
+
+    <!-- 🎉 Celebration -->
+    <div id="celebration">
+      <div class="congrats-card">
+        <div class="congrats-text">🎉 You Are a Star! 🎉</div>
+      </div>
+    </div>
+
+    <script>
+      const board = document.getElementById("board");
+      const statusText = document.getElementById("status");
+      const scoreX = document.getElementById("scoreX");
+      const scoreO = document.getElementById("scoreO");
+      const soundX = document.getElementById("soundX");
+      const soundO = document.getElementById("soundO");
+      const winX = document.getElementById("winX");
+      const winO = document.getElementById("winO");
+      const drawSound = document.getElementById("drawSound");
+      const resetSound = document.getElementById("resetSound");
+      const celebration = document.getElementById("celebration");
+
+      let currentPlayer = "X";
+      let gameActive = true;
+      let gameState = ["", "", "", "", "", "", "", "", ""];
+      let scores = { X: 0, O: 0 };
+
+      const winningConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      function createBoard() {
+        board.innerHTML = "";
+        for (let i = 0; i < 9; i++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.setAttribute("data-index", i);
+          cell.addEventListener("click", handleCellClick);
+          board.appendChild(cell);
+        }
+      }
+
+      function handleCellClick(e) {
+        const index = e.target.getAttribute("data-index");
+        if (!gameActive || gameState[index] !== "") return;
+
+        gameState[index] = currentPlayer;
+        e.target.textContent = currentPlayer;
+        currentPlayer === "X" ? soundX.play() : soundO.play();
+
+        if (checkWinner()) {
+          statusText.textContent = `🎉 Player ${currentPlayer} Wins!`;
+          gameActive = false;
+          scores[currentPlayer]++;
+          updateScoreboard();
+          currentPlayer === "X" ? winX.play() : winO.play();
+          showCelebration();
+        } else if (!gameState.includes("")) {
+          statusText.textContent = "It's a Draw!";
+          gameActive = false;
+          drawSound.currentTime = 0;
+          drawSound.play();
+        } else {
+          currentPlayer = currentPlayer === "X" ? "O" : "X";
+          statusText.textContent = `Player ${currentPlayer}'s Turn`;
+        }
+      }
+
+      function checkWinner() {
+        return winningConditions.some(([a, b, c]) => {
+          if (
+            gameState[a] &&
+            gameState[a] === gameState[b] &&
+            gameState[a] === gameState[c]
+          ) {
+            document.querySelectorAll(".cell")[a].classList.add("win");
+            document.querySelectorAll(".cell")[b].classList.add("win");
+            document.querySelectorAll(".cell")[c].classList.add("win");
+            return true;
+          }
+          return false;
+        });
+      }
+
+      function updateScoreboard() {
+        scoreX.textContent = scores.X;
+        scoreO.textContent = scores.O;
+      }
+
+      function restartGame() {
+        resetSound.play();
+        gameState = ["", "", "", "", "", "", "", "", ""];
+        gameActive = true;
+        currentPlayer = "X";
+        statusText.textContent = `Player ${currentPlayer}'s Turn`;
+        createBoard();
+      }
+
+      function showCelebration() {
+        celebration.style.display = "flex";
+        setTimeout(() => {
+          celebration.style.display = "none";
+        }, 4000);
+      }
+
+      createBoard();
+    </script>
+  </body>
+</html>
